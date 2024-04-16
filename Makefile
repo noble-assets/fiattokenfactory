@@ -1,5 +1,5 @@
-.PHONY: proto-setup proto-format proto-lint proto-gen format lint test-e2e test-unit build
-all: proto-all format lint test-unit build
+.PHONY: proto-format proto-lint proto-gen format build local-image test-unit test-e2e
+all: proto-all format test-unit build local-image test-e2e
 
 ###############################################################################
 ###                                  Build                                  ###
@@ -25,7 +25,8 @@ format:
 ###                                Protobuf                                 ###
 ###############################################################################
 
-BUF_VERSION=1.27.1
+BUF_VERSION=1.30.1
+BUILDER_VERSION=0.14.0
 
 proto-all: proto-format proto-lint proto-gen
 
@@ -38,7 +39,7 @@ proto-format:
 proto-gen:
 	@echo "🤖 Generating code from protobuf..."
 	@docker run --rm --volume "$(PWD)":/workspace --workdir /workspace \
-		noble-fiattokenfactory-proto sh ./proto/generate.sh
+		ghcr.io/cosmos/proto-builder:$(BUILDER_VERSION) sh ./proto/generate.sh
 	@echo "✅ Completed code generation!"
 
 proto-lint:
@@ -47,21 +48,14 @@ proto-lint:
 		bufbuild/buf:$(BUF_VERSION) lint
 	@echo "✅ Completed protobuf linting!"
 
-proto-setup:
-	@echo "🤖 Setting up protobuf environment..."
-	@docker build --rm --tag noble-fiattokenfactory-proto:latest --file proto/Dockerfile .
-	@echo "✅ Setup protobuf environment!"
-
 ###############################################################################
 ###                                 Testing                                 ###
 ###############################################################################
 
-heighliner:
+local-image:
 	@echo "🤖 Building image..."
 	@heighliner build --chain noble-fiattokenfactory-simd --local 1> /dev/null
 	@echo "✅ Completed build!"
-
-test: test-e2e test-unit
 
 test-e2e:
 	@echo "🤖 Running e2e tests..."
@@ -70,5 +64,5 @@ test-e2e:
 
 test-unit:
 	@echo "🤖 Running unit tests..."
-	@go test -cover -race -v ./x/...
+	@go test -cover -coverprofile=coverage.out -race -v ./x/fiattokenfactory/keeper/...
 	@echo "✅ Completed unit tests!"

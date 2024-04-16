@@ -4,23 +4,20 @@ import (
 	"strconv"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/circlefin/noble-fiattokenfactory/utils"
+	"github.com/circlefin/noble-fiattokenfactory/utils/mocks"
+	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	keepertest "github.com/circlefin/noble-fiattokenfactory/testutil/keeper"
-	"github.com/circlefin/noble-fiattokenfactory/testutil/nullify"
-	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
 )
 
 // Prevent strconv unused error
 var _ = strconv.IntSize
 
 func TestMintersQuerySingle(t *testing.T) {
-	keeper, ctx := keepertest.FiatTokenfactoryKeeper(t)
-	wctx := sdk.WrapSDKContext(ctx)
+	keeper, ctx := mocks.FiatTokenfactoryKeeper()
 	msgs := createNMinters(keeper, ctx, 2)
 	for _, tc := range []struct {
 		desc     string
@@ -55,14 +52,14 @@ func TestMintersQuerySingle(t *testing.T) {
 		},
 	} {
 		t.Run(tc.desc, func(t *testing.T) {
-			response, err := keeper.Minters(wctx, tc.request)
+			response, err := keeper.Minters(ctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
 				require.Equal(t,
-					nullify.Fill(tc.response),
-					nullify.Fill(response),
+					utils.Fill(tc.response),
+					utils.Fill(response),
 				)
 			}
 		})
@@ -70,8 +67,7 @@ func TestMintersQuerySingle(t *testing.T) {
 }
 
 func TestMintersQueryPaginated(t *testing.T) {
-	keeper, ctx := keepertest.FiatTokenfactoryKeeper(t)
-	wctx := sdk.WrapSDKContext(ctx)
+	keeper, ctx := mocks.FiatTokenfactoryKeeper()
 	msgs := createNMinters(keeper, ctx, 5)
 
 	request := func(next []byte, offset, limit uint64, total bool) *types.QueryAllMintersRequest {
@@ -87,12 +83,12 @@ func TestMintersQueryPaginated(t *testing.T) {
 	t.Run("ByOffset", func(t *testing.T) {
 		step := 2
 		for i := 0; i < len(msgs); i += step {
-			resp, err := keeper.MintersAll(wctx, request(nil, uint64(i), uint64(step), false))
+			resp, err := keeper.MintersAll(ctx, request(nil, uint64(i), uint64(step), false))
 			require.NoError(t, err)
 			require.LessOrEqual(t, len(resp.Minters), step)
 			require.Subset(t,
-				nullify.Fill(msgs),
-				nullify.Fill(resp.Minters),
+				utils.Fill(msgs),
+				utils.Fill(resp.Minters),
 			)
 		}
 	})
@@ -100,27 +96,27 @@ func TestMintersQueryPaginated(t *testing.T) {
 		step := 2
 		var next []byte
 		for i := 0; i < len(msgs); i += step {
-			resp, err := keeper.MintersAll(wctx, request(next, 0, uint64(step), false))
+			resp, err := keeper.MintersAll(ctx, request(next, 0, uint64(step), false))
 			require.NoError(t, err)
 			require.LessOrEqual(t, len(resp.Minters), step)
 			require.Subset(t,
-				nullify.Fill(msgs),
-				nullify.Fill(resp.Minters),
+				utils.Fill(msgs),
+				utils.Fill(resp.Minters),
 			)
 			next = resp.Pagination.NextKey
 		}
 	})
 	t.Run("Total", func(t *testing.T) {
-		resp, err := keeper.MintersAll(wctx, request(nil, 0, 0, true))
+		resp, err := keeper.MintersAll(ctx, request(nil, 0, 0, true))
 		require.NoError(t, err)
 		require.Equal(t, len(msgs), int(resp.Pagination.Total))
 		require.ElementsMatch(t,
-			nullify.Fill(msgs),
-			nullify.Fill(resp.Minters),
+			utils.Fill(msgs),
+			utils.Fill(resp.Minters),
 		)
 	})
 	t.Run("InvalidRequest", func(t *testing.T) {
-		_, err := keeper.MintersAll(wctx, nil)
+		_, err := keeper.MintersAll(ctx, nil)
 		require.ErrorIs(t, err, status.Error(codes.InvalidArgument, "invalid request"))
 	})
 }

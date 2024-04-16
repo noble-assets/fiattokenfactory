@@ -30,11 +30,11 @@ func CmdMint() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgMint(
-				clientCtx.GetFromAddress().String(),
-				argAddress,
-				argAmount,
-			)
+			msg := &types.MsgMint{
+				From:    clientCtx.GetFromAddress().String(),
+				Address: argAddress,
+				Amount:  argAmount,
+			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

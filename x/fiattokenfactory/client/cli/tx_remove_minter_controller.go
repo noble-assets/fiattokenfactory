@@ -26,10 +26,10 @@ func CmdRemoveMinterController() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgRemoveMinterController(
-				clientCtx.GetFromAddress().String(),
-				argAddress,
-			)
+			msg := &types.MsgRemoveMinterController{
+				From:       clientCtx.GetFromAddress().String(),
+				Controller: argAddress,
+			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

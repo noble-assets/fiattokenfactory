@@ -26,11 +26,11 @@ func CmdConfigureMinterController() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgConfigureMinterController(
-				clientCtx.GetFromAddress().String(),
-				argController,
-				argMinter,
-			)
+			msg := &types.MsgConfigureMinterController{
+				From:       clientCtx.GetFromAddress().String(),
+				Controller: argController,
+				Minter:     argMinter,
+			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

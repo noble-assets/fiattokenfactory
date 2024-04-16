@@ -1,16 +1,17 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
+	"cosmossdk.io/store/prefix"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 )
 
 // SetMintingDenom set mintingDenom in the store
-func (k *Keeper) SetMintingDenom(ctx sdk.Context, mintingDenom types.MintingDenom) {
+func (k Keeper) SetMintingDenom(ctx context.Context, mintingDenom types.MintingDenom) {
 	if k.MintingDenomSet(ctx) {
 		panic(types.ErrMintingDenomSet)
 	}
@@ -20,14 +21,16 @@ func (k *Keeper) SetMintingDenom(ctx sdk.Context, mintingDenom types.MintingDeno
 		panic(fmt.Sprintf("Denom metadata for '%s' should be set", mintingDenom.Denom))
 	}
 
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.MintingDenomKey))
+	adapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(adapter, types.KeyPrefix(types.MintingDenomKey))
 	b := k.cdc.MustMarshal(&mintingDenom)
 	store.Set(types.KeyPrefix(types.MintingDenomKey), b)
 }
 
 // GetMintingDenom returns mintingDenom
-func (k *Keeper) GetMintingDenom(ctx sdk.Context) (val types.MintingDenom) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.MintingDenomKey))
+func (k Keeper) GetMintingDenom(ctx context.Context) (val types.MintingDenom) {
+	adapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(adapter, types.KeyPrefix(types.MintingDenomKey))
 
 	b := store.Get(types.KeyPrefix(types.MintingDenomKey))
 	if b == nil {
@@ -39,8 +42,9 @@ func (k *Keeper) GetMintingDenom(ctx sdk.Context) (val types.MintingDenom) {
 }
 
 // MintingDenomSet returns true if the MintingDenom is already set in the store, it returns false otherwise.
-func (k Keeper) MintingDenomSet(ctx sdk.Context) bool {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.MintingDenomKey))
+func (k Keeper) MintingDenomSet(ctx context.Context) bool {
+	adapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(adapter, types.KeyPrefix(types.MintingDenomKey))
 
 	b := store.Get(types.KeyPrefix(types.MintingDenomKey))
 

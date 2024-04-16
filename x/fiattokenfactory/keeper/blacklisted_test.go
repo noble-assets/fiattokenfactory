@@ -4,9 +4,8 @@ import (
 	"strconv"
 	"testing"
 
-	keepertest "github.com/circlefin/noble-fiattokenfactory/testutil/keeper"
-	"github.com/circlefin/noble-fiattokenfactory/testutil/nullify"
-	"github.com/circlefin/noble-fiattokenfactory/testutil/sample"
+	"github.com/circlefin/noble-fiattokenfactory/utils"
+	"github.com/circlefin/noble-fiattokenfactory/utils/mocks"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/keeper"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -24,7 +23,7 @@ type blacklistedWrapper struct {
 func createNBlacklisted(keeper *keeper.Keeper, ctx sdk.Context, n int) []blacklistedWrapper {
 	items := make([]blacklistedWrapper, n)
 	for i := range items {
-		acc := sample.TestAccount()
+		acc := utils.TestAccount()
 		items[i].address = acc.Address
 		items[i].bl.AddressBz = acc.AddressBz
 
@@ -34,7 +33,7 @@ func createNBlacklisted(keeper *keeper.Keeper, ctx sdk.Context, n int) []blackli
 }
 
 func TestBlacklistedGet(t *testing.T) {
-	keeper, ctx := keepertest.FiatTokenfactoryKeeper(t)
+	keeper, ctx := mocks.FiatTokenfactoryKeeper()
 	items := createNBlacklisted(keeper, ctx, 10)
 	for _, item := range items {
 		rst, found := keeper.GetBlacklisted(ctx,
@@ -42,14 +41,14 @@ func TestBlacklistedGet(t *testing.T) {
 		)
 		require.True(t, found)
 		require.Equal(t,
-			nullify.Fill(&item.bl),
-			nullify.Fill(&rst),
+			utils.Fill(&item.bl),
+			utils.Fill(&rst),
 		)
 	}
 }
 
 func TestBlacklistedRemove(t *testing.T) {
-	keeper, ctx := keepertest.FiatTokenfactoryKeeper(t)
+	keeper, ctx := mocks.FiatTokenfactoryKeeper()
 	items := createNBlacklisted(keeper, ctx, 10)
 	for _, item := range items {
 		keeper.RemoveBlacklisted(ctx,
@@ -63,14 +62,14 @@ func TestBlacklistedRemove(t *testing.T) {
 }
 
 func TestBlacklistedGetAll(t *testing.T) {
-	keeper, ctx := keepertest.FiatTokenfactoryKeeper(t)
+	keeper, ctx := mocks.FiatTokenfactoryKeeper()
 	items := createNBlacklisted(keeper, ctx, 10)
 	blacklisted := make([]types.Blacklisted, len(items))
 	for i, item := range items {
 		blacklisted[i] = item.bl
 	}
 	require.ElementsMatch(t,
-		nullify.Fill(blacklisted),
-		nullify.Fill(keeper.GetAllBlacklisted(ctx)),
+		utils.Fill(blacklisted),
+		utils.Fill(keeper.GetAllBlacklisted(ctx)),
 	)
 }

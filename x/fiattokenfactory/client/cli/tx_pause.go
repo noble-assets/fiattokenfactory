@@ -23,9 +23,9 @@ func CmdPause() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgPause(
-				clientCtx.GetFromAddress().String(),
-			)
+			msg := &types.MsgPause{
+				From: clientCtx.GetFromAddress().String(),
+			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

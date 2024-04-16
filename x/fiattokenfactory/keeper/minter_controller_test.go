@@ -4,11 +4,10 @@ import (
 	"strconv"
 	"testing"
 
-	keepertest "github.com/circlefin/noble-fiattokenfactory/testutil/keeper"
-	"github.com/circlefin/noble-fiattokenfactory/testutil/nullify"
+	"github.com/circlefin/noble-fiattokenfactory/utils"
+	"github.com/circlefin/noble-fiattokenfactory/utils/mocks"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/keeper"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -27,7 +26,7 @@ func createNMinterController(keeper *keeper.Keeper, ctx sdk.Context, n int) []ty
 }
 
 func TestMinterControllerGet(t *testing.T) {
-	keeper, ctx := keepertest.FiatTokenfactoryKeeper(t)
+	keeper, ctx := mocks.FiatTokenfactoryKeeper()
 	items := createNMinterController(keeper, ctx, 10)
 	for _, item := range items {
 		rst, found := keeper.GetMinterController(ctx,
@@ -35,14 +34,14 @@ func TestMinterControllerGet(t *testing.T) {
 		)
 		require.True(t, found)
 		require.Equal(t,
-			nullify.Fill(&item),
-			nullify.Fill(&rst),
+			utils.Fill(&item),
+			utils.Fill(&rst),
 		)
 	}
 }
 
 func TestMinterControllerRemove(t *testing.T) {
-	keeper, ctx := keepertest.FiatTokenfactoryKeeper(t)
+	keeper, ctx := mocks.FiatTokenfactoryKeeper()
 	items := createNMinterController(keeper, ctx, 10)
 	for _, item := range items {
 		keeper.DeleteMinterController(ctx,
@@ -56,10 +55,10 @@ func TestMinterControllerRemove(t *testing.T) {
 }
 
 func TestMinterControllerGetAll(t *testing.T) {
-	keeper, ctx := keepertest.FiatTokenfactoryKeeper(t)
+	keeper, ctx := mocks.FiatTokenfactoryKeeper()
 	items := createNMinterController(keeper, ctx, 10)
 	require.ElementsMatch(t,
-		nullify.Fill(items),
-		nullify.Fill(keeper.GetAllMinterControllers(ctx)),
+		utils.Fill(items),
+		utils.Fill(keeper.GetAllMinterControllers(ctx)),
 	)
 }

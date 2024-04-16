@@ -3,24 +3,22 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/store/prefix"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
-
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func (k Keeper) MinterControllerAll(c context.Context, req *types.QueryAllMinterControllerRequest) (*types.QueryAllMinterControllerResponse, error) {
+func (k Keeper) MinterControllerAll(ctx context.Context, req *types.QueryAllMinterControllerRequest) (*types.QueryAllMinterControllerResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
 	var minterControllers []types.MinterController
-	ctx := sdk.UnwrapSDKContext(c)
 
-	store := ctx.KVStore(k.storeKey)
+	store := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
 	minterControllerStore := prefix.NewStore(store, types.KeyPrefix(types.MinterControllerKeyPrefix))
 
 	pageRes, err := query.Paginate(minterControllerStore, req.Pagination, func(key []byte, value []byte) error {
@@ -39,11 +37,10 @@ func (k Keeper) MinterControllerAll(c context.Context, req *types.QueryAllMinter
 	return &types.QueryAllMinterControllerResponse{MinterController: minterControllers, Pagination: pageRes}, nil
 }
 
-func (k Keeper) MinterController(c context.Context, req *types.QueryGetMinterControllerRequest) (*types.QueryGetMinterControllerResponse, error) {
+func (k Keeper) MinterController(ctx context.Context, req *types.QueryGetMinterControllerRequest) (*types.QueryGetMinterControllerResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
-	ctx := sdk.UnwrapSDKContext(c)
 
 	val, found := k.GetMinterController(
 		ctx,

@@ -25,10 +25,10 @@ func CmdUpdatePauser() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgUpdatePauser(
-				clientCtx.GetFromAddress().String(),
-				argAddress,
-			)
+			msg := &types.MsgUpdatePauser{
+				From:    clientCtx.GetFromAddress().String(),
+				Address: argAddress,
+			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

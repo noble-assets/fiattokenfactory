@@ -25,10 +25,10 @@ func CmdUpdateMasterMinter() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgUpdateMasterMinter(
-				clientCtx.GetFromAddress().String(),
-				argAddress,
-			)
+			msg := &types.MsgUpdateMasterMinter{
+				From:    clientCtx.GetFromAddress().String(),
+				Address: argAddress,
+			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

@@ -1,14 +1,17 @@
 package keeper
 
 import (
+	"context"
+
+	"cosmossdk.io/store/prefix"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/runtime"
 )
 
 // SetMinters set a specific minters in the store from its index
-func (k Keeper) SetMinters(ctx sdk.Context, minters types.Minters) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.MintersKeyPrefix))
+func (k Keeper) SetMinters(ctx context.Context, minters types.Minters) {
+	adapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(adapter, types.KeyPrefix(types.MintersKeyPrefix))
 	b := k.cdc.MustMarshal(&minters)
 	store.Set(types.MintersKey(
 		minters.Address,
@@ -17,10 +20,11 @@ func (k Keeper) SetMinters(ctx sdk.Context, minters types.Minters) {
 
 // GetMinters returns a minters from its index
 func (k Keeper) GetMinters(
-	ctx sdk.Context,
+	ctx context.Context,
 	address string,
 ) (val types.Minters, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.MintersKeyPrefix))
+	adapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(adapter, types.KeyPrefix(types.MintersKeyPrefix))
 
 	b := store.Get(types.MintersKey(
 		address,
@@ -35,19 +39,21 @@ func (k Keeper) GetMinters(
 
 // RemoveMinters removes a minters from the store
 func (k Keeper) RemoveMinters(
-	ctx sdk.Context,
+	ctx context.Context,
 	address string,
 ) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.MintersKeyPrefix))
+	adapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(adapter, types.KeyPrefix(types.MintersKeyPrefix))
 	store.Delete(types.MintersKey(
 		address,
 	))
 }
 
 // GetAllMinters returns all minters
-func (k Keeper) GetAllMinters(ctx sdk.Context) (list []types.Minters) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.MintersKeyPrefix))
-	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+func (k Keeper) GetAllMinters(ctx context.Context) (list []types.Minters) {
+	adapter := runtime.KVStoreAdapter(k.storeService.OpenKVStore(ctx))
+	store := prefix.NewStore(adapter, types.KeyPrefix(types.MintersKeyPrefix))
+	iterator := store.Iterator(nil, nil)
 
 	defer iterator.Close()
 

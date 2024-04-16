@@ -3,13 +3,12 @@ package keeper_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
-
-	keepertest "github.com/circlefin/noble-fiattokenfactory/testutil/keeper"
-	"github.com/circlefin/noble-fiattokenfactory/testutil/nullify"
+	"github.com/circlefin/noble-fiattokenfactory/utils"
+	"github.com/circlefin/noble-fiattokenfactory/utils/mocks"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/keeper"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 )
 
 func createTestBlacklister(keeper *keeper.Keeper, ctx sdk.Context) types.Blacklister {
@@ -19,12 +18,12 @@ func createTestBlacklister(keeper *keeper.Keeper, ctx sdk.Context) types.Blackli
 }
 
 func TestBlacklisterGet(t *testing.T) {
-	keeper, ctx := keepertest.FiatTokenfactoryKeeper(t)
+	keeper, ctx := mocks.FiatTokenfactoryKeeper()
 	item := createTestBlacklister(keeper, ctx)
 	rst, found := keeper.GetBlacklister(ctx)
 	require.True(t, found)
 	require.Equal(t,
-		nullify.Fill(&item),
-		nullify.Fill(&rst),
+		utils.Fill(&item),
+		utils.Fill(&rst),
 	)
 }

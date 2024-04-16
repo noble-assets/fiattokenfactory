@@ -25,10 +25,10 @@ func CmdRemoveMinter() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgRemoveMinter(
-				clientCtx.GetFromAddress().String(),
-				argAddress,
-			)
+			msg := &types.MsgRemoveMinter{
+				From:    clientCtx.GetFromAddress().String(),
+				Address: argAddress,
+			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

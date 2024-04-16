@@ -3,23 +3,20 @@ package keeper
 import (
 	"context"
 
+	"cosmossdk.io/errors"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
-
-	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 )
 
-func (k msgServer) Unblacklist(goCtx context.Context, msg *types.MsgUnblacklist) (*types.MsgUnblacklistResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
+func (k msgServer) Unblacklist(ctx context.Context, msg *types.MsgUnblacklist) (*types.MsgUnblacklistResponse, error) {
 	blacklister, found := k.GetBlacklister(ctx)
 	if !found {
-		return nil, sdkerrors.Wrapf(types.ErrUserNotFound, "blacklister is not set")
+		return nil, errors.Wrapf(types.ErrUserNotFound, "blacklister is not set")
 	}
 
 	if blacklister.Address != msg.From {
-		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "you are not the blacklister")
+		return nil, errors.Wrapf(types.ErrUnauthorized, "you are not the blacklister")
 	}
 
 	_, addressBz, err := bech32.DecodeAndConvert(msg.Address)
@@ -29,12 +26,13 @@ func (k msgServer) Unblacklist(goCtx context.Context, msg *types.MsgUnblacklist)
 
 	blacklisted, found := k.GetBlacklisted(ctx, addressBz)
 	if !found {
-		return nil, sdkerrors.Wrapf(types.ErrUserNotFound, "the specified address is not blacklisted")
+		return nil, errors.Wrapf(types.ErrUserNotFound, "the specified address is not blacklisted")
 	}
 
 	k.RemoveBlacklisted(ctx, blacklisted.AddressBz)
 
-	err = ctx.EventManager().EmitTypedEvent(msg)
+	sdkCtx := sdk.UnwrapSDKContext(ctx)
+	err = sdkCtx.EventManager().EmitTypedEvent(msg)
 
 	return &types.MsgUnblacklistResponse{}, err
 }

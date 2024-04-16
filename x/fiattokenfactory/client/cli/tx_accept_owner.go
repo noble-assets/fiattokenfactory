@@ -23,9 +23,9 @@ func CmdAcceptOwner() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgAcceptOwner(
-				clientCtx.GetFromAddress().String(),
-			)
+			msg := &types.MsgAcceptOwner{
+				From: clientCtx.GetFromAddress().String(),
+			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

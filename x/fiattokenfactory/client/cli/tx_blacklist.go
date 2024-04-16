@@ -25,10 +25,10 @@ func CmdBlacklist() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgBlacklist(
-				clientCtx.GetFromAddress().String(),
-				argAddress,
-			)
+			msg := &types.MsgBlacklist{
+				From:    clientCtx.GetFromAddress().String(),
+				Address: argAddress,
+			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

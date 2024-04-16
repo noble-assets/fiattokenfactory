@@ -3,15 +3,14 @@ package keeper_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
-	keepertest "github.com/circlefin/noble-fiattokenfactory/testutil/keeper"
-	"github.com/circlefin/noble-fiattokenfactory/testutil/nullify"
+	"github.com/circlefin/noble-fiattokenfactory/utils"
+	"github.com/circlefin/noble-fiattokenfactory/utils/mocks"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
+	"github.com/stretchr/testify/require"
 )
 
 func TestOwnerGet(t *testing.T) {
-	keeper, ctx := keepertest.FiatTokenfactoryKeeper(t)
+	keeper, ctx := mocks.FiatTokenfactoryKeeper()
 
 	owner := types.Owner{Address: "1"}
 	keeper.SetOwner(ctx, owner)
@@ -20,7 +19,7 @@ func TestOwnerGet(t *testing.T) {
 	require.True(t, found)
 	require.Equal(t,
 		owner,
-		nullify.Fill(&rst),
+		utils.Fill(&rst),
 	)
 
 	newOwner := types.Owner{Address: "2"}
@@ -31,6 +30,6 @@ func TestOwnerGet(t *testing.T) {
 	require.True(t, found)
 	require.Equal(t,
 		newOwner,
-		nullify.Fill(&rst),
+		utils.Fill(&rst),
 	)
 }

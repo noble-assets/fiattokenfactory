@@ -29,10 +29,10 @@ func CmdBurn() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgBurn(
-				clientCtx.GetFromAddress().String(),
-				argAmount,
-			)
+			msg := &types.MsgBurn{
+				From:   clientCtx.GetFromAddress().String(),
+				Amount: argAmount,
+			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
