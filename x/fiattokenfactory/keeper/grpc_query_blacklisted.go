@@ -3,10 +3,10 @@ package keeper
 import (
 	"context"
 
+	"github.com/btcsuite/btcd/btcutil/bech32"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -45,7 +45,7 @@ func (k Keeper) Blacklisted(c context.Context, req *types.QueryGetBlacklistedReq
 	}
 	ctx := sdk.UnwrapSDKContext(c)
 
-	_, addressBz, err := bech32.DecodeAndConvert(req.Address)
+	_, addressBz, err := bech32.Decode(req.Address)
 	if err != nil {
 		return nil, err
 	}

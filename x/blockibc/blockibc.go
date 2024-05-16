@@ -1,10 +1,10 @@
 package blockibc
 
 import (
+	"github.com/btcsuite/btcd/btcutil/bech32"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/keeper"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	transfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
@@ -107,7 +107,7 @@ func (im IBCMiddleware) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(types.ErrPaused)
 	}
 
-	_, addressBz, err := bech32.DecodeAndConvert(data.Receiver)
+	_, addressBz, err := bech32.Decode(data.Receiver)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
 	}
@@ -118,7 +118,7 @@ func (im IBCMiddleware) OnRecvPacket(
 		return channeltypes.NewErrorAcknowledgement(ackErr)
 	}
 
-	_, addressBz, err = bech32.DecodeAndConvert(data.Sender)
+	_, addressBz, err = bech32.Decode(data.Sender)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(err)
 	}

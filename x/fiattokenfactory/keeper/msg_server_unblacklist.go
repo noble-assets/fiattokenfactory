@@ -3,10 +3,9 @@ package keeper
 import (
 	"context"
 
-	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
-
 	sdkerrors "cosmossdk.io/errors"
+	"github.com/btcsuite/btcd/btcutil/bech32"
+	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -22,7 +21,7 @@ func (k msgServer) Unblacklist(goCtx context.Context, msg *types.MsgUnblacklist)
 		return nil, sdkerrors.Wrapf(types.ErrUnauthorized, "you are not the blacklister")
 	}
 
-	_, addressBz, err := bech32.DecodeAndConvert(msg.Address)
+	_, addressBz, err := bech32.Decode(msg.Address)
 	if err != nil {
 		return nil, err
 	}

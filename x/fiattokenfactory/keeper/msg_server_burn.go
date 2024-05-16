@@ -3,11 +3,10 @@ package keeper
 import (
 	"context"
 
-	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
-
 	sdkerrors "cosmossdk.io/errors"
+	"github.com/btcsuite/btcd/btcutil/bech32"
+	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/bech32"
 )
 
 func (k msgServer) Burn(goCtx context.Context, msg *types.MsgBurn) (*types.MsgBurnResponse, error) {
@@ -21,7 +20,7 @@ func (k Keeper) Burn(ctx sdk.Context, msg *types.MsgBurn) (*types.MsgBurnRespons
 		return nil, sdkerrors.Wrapf(types.ErrBurn, "%v: you are not a minter", types.ErrUnauthorized)
 	}
 
-	_, addressBz, err := bech32.DecodeAndConvert(msg.From)
+	_, addressBz, err := bech32.Decode(msg.From)
 	if err != nil {
 		return nil, sdkerrors.Wrap(types.ErrBurn, err.Error())
 	}
