@@ -84,9 +84,7 @@ func TestBlockIBC(t *testing.T) {
 			middleware, ftf, ctx := mocks.BlockIBC()
 
 			// ACT: Set paused and blacklisted state based on test case.
-			if tc.setPaused {
-				ftf.SetPaused(ctx, fiattokenfactorytypes.Paused{Paused: true})
-			}
+			ftf.SetPaused(ctx, fiattokenfactorytypes.Paused{Paused: tc.setPaused})
 			if tc.toBlacklist != nil {
 				ftf.SetBlacklisted(ctx, fiattokenfactorytypes.Blacklisted{
 					AddressBz: tc.toBlacklist.AddressBz,
