@@ -47,7 +47,7 @@ func TestBlockIBC(t *testing.T) {
 			setPaused:   false,
 			packet: func() channeltypes.Packet {
 				packet := mockPacket(sender.Address, receiverAddress)
-				// transfer `ustake` instead of `usdc`
+				// transfer `ustake` instead of `uusdc`
 				packet.Data = transfertypes.NewFungibleTokenPacketData(
 					"ustake", "1000000", sender.Address, receiverAddress, "",
 				).GetBytes()
