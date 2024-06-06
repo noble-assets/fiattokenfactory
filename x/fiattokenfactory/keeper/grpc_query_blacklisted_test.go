@@ -7,6 +7,7 @@ import (
 	"github.com/circlefin/noble-fiattokenfactory/utils"
 	"github.com/circlefin/noble-fiattokenfactory/utils/mocks"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
+	"github.com/cosmos/btcutil/bech32"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -42,13 +43,20 @@ func TestBlacklistedQuerySingle(t *testing.T) {
 		{
 			desc: "KeyNotFound",
 			request: &types.QueryGetBlacklistedRequest{
-				Address: utils.AccAddress(),
+				Address: utils.AccAddress().String(),
 			},
 			err: status.Error(codes.NotFound, "not found"),
 		},
 		{
 			desc: "InvalidRequest",
 			err:  status.Error(codes.InvalidArgument, "invalid request"),
+		},
+		{
+			desc: "MalformedAddress",
+			request: &types.QueryGetBlacklistedRequest{
+				Address: "malformed address",
+			},
+			err: bech32.ErrInvalidCharacter(' '),
 		},
 	} {
 		t.Run(tc.desc, func(t *testing.T) {
@@ -122,5 +130,9 @@ func TestBlacklistedQueryPaginated(t *testing.T) {
 	t.Run("InvalidRequest", func(t *testing.T) {
 		_, err := keeper.BlacklistedAll(ctx, nil)
 		require.ErrorIs(t, err, status.Error(codes.InvalidArgument, "invalid request"))
+	})
+	t.Run("PaginateError", func(t *testing.T) {
+		_, err := keeper.BlacklistedAll(ctx, request([]byte("next bytes"), 1, 0, true))
+		require.ErrorContains(t, err, "invalid request, either offset or key is expected, got both")
 	})
 }

@@ -19,6 +19,10 @@ func createTestPaused(keeper *keeper.Keeper, ctx sdk.Context) types.Paused {
 
 func TestPausedGet(t *testing.T) {
 	keeper, ctx := mocks.FiatTokenfactoryKeeper()
+
+	// keeper not set, should panic
+	require.Panics(t, func() { keeper.GetPaused(ctx) })
+
 	item := createTestPaused(keeper, ctx)
 	rst := keeper.GetPaused(ctx)
 	require.Equal(t,

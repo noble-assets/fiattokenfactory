@@ -19,8 +19,18 @@ func createTestMintingDenom(keeper *keeper.Keeper, ctx sdk.Context) types.Mintin
 	return item
 }
 
+func TestMintingDenomSet(t *testing.T) {
+	keeper, ctx := mocks.FiatTokenfactoryKeeper()
+	keeper.SetMintingDenom(ctx, types.MintingDenom{})
+	require.Panics(t, func() { keeper.SetMintingDenom(ctx, types.MintingDenom{}) })
+}
+
 func TestMintingDenomGet(t *testing.T) {
 	keeper, ctx := mocks.FiatTokenfactoryKeeper()
+
+	// minting deonom not set, should panic
+	require.Panics(t, func() { keeper.GetMintingDenom(ctx) })
+
 	item := createTestMintingDenom(keeper, ctx)
 	rst := keeper.GetMintingDenom(ctx)
 	require.Equal(t,

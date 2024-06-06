@@ -19,8 +19,12 @@ func createTestMasterMinter(keeper *keeper.Keeper, ctx sdk.Context) types.Master
 
 func TestMasterMinterGet(t *testing.T) {
 	keeper, ctx := mocks.FiatTokenfactoryKeeper()
-	item := createTestMasterMinter(keeper, ctx)
 	rst, found := keeper.GetMasterMinter(ctx)
+	require.Empty(t, rst)
+	require.False(t, found)
+
+	item := createTestMasterMinter(keeper, ctx)
+	rst, found = keeper.GetMasterMinter(ctx)
 	require.True(t, found)
 	require.Equal(t,
 		utils.Fill(&item),
