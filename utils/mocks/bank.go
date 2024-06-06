@@ -38,5 +38,15 @@ func (m MockBankKeeper) SendCoinsFromAccountToModule(ctx context.Context, sender
 }
 
 func (m MockBankKeeper) GetDenomMetaData(ctx context.Context, denom string) (banktypes.Metadata, bool) {
-	return banktypes.Metadata{}, true
+	if denom == "uusdc" {
+		return banktypes.Metadata{
+			DenomUnits: []*banktypes.DenomUnit{
+				{
+					Denom: "uusdc",
+				},
+			},
+		}, true
+	}
+	return banktypes.Metadata{}, false
+
 }
