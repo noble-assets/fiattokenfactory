@@ -13,7 +13,7 @@ import (
 
 func createTestMintingDenom(keeper *keeper.Keeper, ctx sdk.Context) types.MintingDenom {
 	item := types.MintingDenom{
-		Denom: "abcd",
+		Denom: "uusdc",
 	}
 	keeper.SetMintingDenom(ctx, item)
 	return item
@@ -21,8 +21,14 @@ func createTestMintingDenom(keeper *keeper.Keeper, ctx sdk.Context) types.Mintin
 
 func TestMintingDenomSet(t *testing.T) {
 	keeper, ctx := mocks.FiatTokenfactoryKeeper()
-	keeper.SetMintingDenom(ctx, types.MintingDenom{})
-	require.Panics(t, func() { keeper.SetMintingDenom(ctx, types.MintingDenom{}) })
+
+	require.Panics(t, func() { keeper.SetMintingDenom(ctx, types.MintingDenom{Denom: "notSet"}) })
+
+	require.NotPanics(t, func() { keeper.SetMintingDenom(ctx, types.MintingDenom{Denom: "uusdc"}) })
+
+	// reset minting denom after already set
+	require.Panics(t, func() { keeper.SetMintingDenom(ctx, types.MintingDenom{Denom: "uusdc"}) })
+
 }
 
 func TestMintingDenomGet(t *testing.T) {

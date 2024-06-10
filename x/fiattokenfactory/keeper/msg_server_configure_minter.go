@@ -20,6 +20,7 @@ func (k msgServer) ConfigureMinter(ctx context.Context, msg *types.MsgConfigureM
 		return nil, errors.Wrapf(types.ErrUnauthorized, "minter controller not found")
 	}
 
+	// TODO: remove unnecessary check
 	if msg.From != minterController.Controller {
 		return nil, errors.Wrapf(types.ErrUnauthorized, "you are not a controller of this minter")
 	}

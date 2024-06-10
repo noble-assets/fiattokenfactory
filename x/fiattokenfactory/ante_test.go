@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
+	cctptypes "github.com/circlefin/noble-cctp/x/cctp/types"
 	"github.com/circlefin/noble-fiattokenfactory/utils"
 	"github.com/circlefin/noble-fiattokenfactory/utils/mocks"
 	"github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory"
@@ -102,6 +103,20 @@ func TestAnteHandlerIsPaused(t *testing.T) {
 			expectedFailOnPause: true,
 			message: &transfertypes.MsgTransfer{
 				Token: coin,
+			},
+		},
+		"MsgDepositForBurn": {
+			expectedFailOnPause: true,
+			message: &cctptypes.MsgDepositForBurn{
+				From:      "mock",
+				BurnToken: "uusdc",
+			},
+		},
+		"MsgDepositForBurnWithCaller": {
+			expectedFailOnPause: true,
+			message: &cctptypes.MsgDepositForBurnWithCaller{
+				From:      "mock",
+				BurnToken: "uusdc",
 			},
 		},
 	}
@@ -275,6 +290,24 @@ func TestAnteHandlerIsBlacklisted(t *testing.T) {
 			testInvalidAddress:  true,
 			expectedError:       bech32.ErrInvalidCharacter(32),
 		},
+		"msgDepositForBurn invalid address": {
+			message: &cctptypes.MsgDepositForBurn{
+				From:      "invalid address",
+				BurnToken: "uusdc",
+			},
+			blacklistSendAndRec: false,
+			testInvalidAddress:  true,
+			expectedError:       bech32.ErrInvalidCharacter(32),
+		},
+		"msgDepositForBurnWithCaller invalid address": {
+			message: &cctptypes.MsgDepositForBurnWithCaller{
+				From:      "invalid address",
+				BurnToken: "uusdc",
+			},
+			blacklistSendAndRec: false,
+			testInvalidAddress:  true,
+			expectedError:       bech32.ErrInvalidCharacter(32),
+		},
 		"msgExec MsgSend": {
 			message: func() sdk.Msg {
 				mgsSend := &banktypes.MsgSend{
@@ -373,6 +406,76 @@ func TestAnteHandlerIsBlacklisted(t *testing.T) {
 					Token:    coin,
 				}
 				msgSendAny, err := codectypes.NewAnyWithValue(msgTransfer)
+				require.NoError(t, err)
+				msg := &authz.MsgExec{
+					Grantee: "invalid address",
+					Msgs:    []*codectypes.Any{msgSendAny},
+				}
+				return msg
+			}(),
+			blacklistSendAndRec: false,
+			testInvalidAddress:  true,
+			expectedError:       bech32.ErrInvalidCharacter(32),
+		},
+		"msgExec MsgDepositForBurn": {
+			message: func() sdk.Msg {
+				msgDepositForBurn := &cctptypes.MsgDepositForBurn{
+					From:      testAccount2.Address,
+					BurnToken: "uusdc",
+				}
+				msgSendAny, err := codectypes.NewAnyWithValue(msgDepositForBurn)
+				require.NoError(t, err)
+				msg := &authz.MsgExec{
+					Grantee: testAccount1.Address,
+					Msgs:    []*codectypes.Any{msgSendAny},
+				}
+				return msg
+			}(),
+			blacklistSendAndRec: true,
+			expectedError:       types.ErrUnauthorized,
+		},
+		"msgExec MsgDepositForBurn invalid grantee": {
+			message: func() sdk.Msg {
+				msgDepositForBurn := &cctptypes.MsgDepositForBurn{
+					From:      testAccount2.Address,
+					BurnToken: "uusdc",
+				}
+				msgSendAny, err := codectypes.NewAnyWithValue(msgDepositForBurn)
+				require.NoError(t, err)
+				msg := &authz.MsgExec{
+					Grantee: "invalid address",
+					Msgs:    []*codectypes.Any{msgSendAny},
+				}
+				return msg
+			}(),
+			blacklistSendAndRec: false,
+			testInvalidAddress:  true,
+			expectedError:       bech32.ErrInvalidCharacter(32),
+		},
+		"msgExec MsgDepositForBurnWithCaller": {
+			message: func() sdk.Msg {
+				msgDepositForBurn := &cctptypes.MsgDepositForBurnWithCaller{
+					From:      testAccount2.Address,
+					BurnToken: "uusdc",
+				}
+				msgSendAny, err := codectypes.NewAnyWithValue(msgDepositForBurn)
+				require.NoError(t, err)
+				msg := &authz.MsgExec{
+					Grantee: testAccount1.Address,
+					Msgs:    []*codectypes.Any{msgSendAny},
+				}
+				return msg
+			}(),
+			blacklistSendAndRec: true,
+			expectedError:       types.ErrUnauthorized,
+		},
+		"msgExec MsgDepositForBurnWithCaller invalid grantee": {
+			message: func() sdk.Msg {
+				msgDepositForBurn := &cctptypes.MsgDepositForBurnWithCaller{
+					From:      testAccount2.Address,
+					BurnToken: "uusdc",
+				}
+				msgSendAny, err := codectypes.NewAnyWithValue(msgDepositForBurn)
 				require.NoError(t, err)
 				msg := &authz.MsgExec{
 					Grantee: "invalid address",

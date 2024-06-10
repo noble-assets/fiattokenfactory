@@ -40,4 +40,9 @@ func TestOwnerGet(t *testing.T) {
 		newOwner,
 		utils.Fill(&rst),
 	)
+
+	keeper.DeletePendingOwner(ctx)
+	rst, found = keeper.GetPendingOwner(ctx)
+	require.False(t, found)
+	require.Empty(t, rst)
 }
