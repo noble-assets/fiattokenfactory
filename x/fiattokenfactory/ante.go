@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	sdkerrors "cosmossdk.io/errors"
-
+	cctptypes "github.com/circlefin/noble-cctp/x/cctp/types"
 	fiattokenfactorykeeper "github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/keeper"
 	fiattokenfactorytypes "github.com/circlefin/noble-fiattokenfactory/x/fiattokenfactory/types"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -86,6 +86,19 @@ func (ad IsPausedDecorator) CheckMessages(ctx sdk.Context, msgs []sdk.Msg) error
 			if paused {
 				return sdkerrors.Wrapf(err, "can not perform token transfers")
 			}
+		case *cctptypes.MsgDepositForBurn:
+			c := sdk.Coin{Denom: m.BurnToken, Amount: m.Amount}
+			paused, err := checkPausedStatebyTokenFactory(ctx, c, ad.fiatTokenFactory)
+			if paused {
+				return sdkerrors.Wrapf(err, "can not perform token transfers")
+			}
+		case *cctptypes.MsgDepositForBurnWithCaller:
+			c := sdk.Coin{Denom: m.BurnToken, Amount: m.Amount}
+			paused, err := checkPausedStatebyTokenFactory(ctx, c, ad.fiatTokenFactory)
+			if paused {
+				return sdkerrors.Wrapf(err, "can not perform token transfers")
+			}
+
 		default:
 			continue
 		}
@@ -222,6 +235,40 @@ func (ad IsBlacklistedDecorator) CheckMessages(ctx sdk.Context, msgs []sdk.Msg, 
 				return sdkerrors.Wrapf(err, "an address (%s) is blacklisted and can not receive tokens", m.Receiver)
 			} else if err != nil {
 				return sdkerrors.Wrapf(err, "error decoding address (%s)", m.Receiver)
+			}
+		case *cctptypes.MsgDepositForBurn:
+			c := sdk.Coin{Denom: m.BurnToken, Amount: m.Amount}
+			if grantee != nil {
+				err := checkForBlacklistedAddressByTokenFactory(ctx, *grantee, c, ad.fiattokenfactory)
+				if errors.Is(err, fiattokenfactorytypes.ErrUnauthorized) {
+					return sdkerrors.Wrapf(err, "an address (%s) is blacklisted and cannot receive tokens", *grantee)
+				} else if err != nil {
+					return sdkerrors.Wrapf(err, "error decoding address (%s)", *grantee)
+				}
+			}
+
+			err := checkForBlacklistedAddressByTokenFactory(ctx, m.From, c, ad.fiattokenfactory)
+			if errors.Is(err, fiattokenfactorytypes.ErrUnauthorized) {
+				return sdkerrors.Wrapf(err, "an address (%s) is blacklisted and cannot burn tokens", m.From)
+			} else if err != nil {
+				return sdkerrors.Wrapf(err, "error decoding address (%s)", m.From)
+			}
+		case *cctptypes.MsgDepositForBurnWithCaller:
+			c := sdk.Coin{Denom: m.BurnToken, Amount: m.Amount}
+			if grantee != nil {
+				err := checkForBlacklistedAddressByTokenFactory(ctx, *grantee, c, ad.fiattokenfactory)
+				if errors.Is(err, fiattokenfactorytypes.ErrUnauthorized) {
+					return sdkerrors.Wrapf(err, "an address (%s) is blacklisted and cannot receive tokens", *grantee)
+				} else if err != nil {
+					return sdkerrors.Wrapf(err, "error decoding address (%s)", *grantee)
+				}
+			}
+
+			err := checkForBlacklistedAddressByTokenFactory(ctx, m.From, c, ad.fiattokenfactory)
+			if errors.Is(err, fiattokenfactorytypes.ErrUnauthorized) {
+				return sdkerrors.Wrapf(err, "an address (%s) is blacklisted and cannot burn tokens", m.From)
+			} else if err != nil {
+				return sdkerrors.Wrapf(err, "error decoding address (%s)", m.From)
 			}
 		default:
 			continue
