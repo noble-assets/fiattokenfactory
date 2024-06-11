@@ -13,6 +13,10 @@ import (
 
 func TestMasterMinterQuery(t *testing.T) {
 	keeper, ctx := mocks.FiatTokenfactoryKeeper()
+
+	_, err := keeper.MasterMinter(ctx, &types.QueryGetMasterMinterRequest{})
+	require.ErrorIs(t, err, status.Error(codes.NotFound, "not found"))
+
 	item := createTestMasterMinter(keeper, ctx)
 	for _, tc := range []struct {
 		desc     string

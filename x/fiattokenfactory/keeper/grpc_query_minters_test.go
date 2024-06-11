@@ -119,4 +119,8 @@ func TestMintersQueryPaginated(t *testing.T) {
 		_, err := keeper.MintersAll(ctx, nil)
 		require.ErrorIs(t, err, status.Error(codes.InvalidArgument, "invalid request"))
 	})
+	t.Run("PaginateError", func(t *testing.T) {
+		_, err := keeper.MintersAll(ctx, request([]byte("next bytes"), 1, 0, true))
+		require.ErrorContains(t, err, "invalid request, either offset or key is expected, got both")
+	})
 }

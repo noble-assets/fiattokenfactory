@@ -20,10 +20,6 @@ func (k msgServer) ConfigureMinter(ctx context.Context, msg *types.MsgConfigureM
 		return nil, errors.Wrapf(types.ErrUnauthorized, "minter controller not found")
 	}
 
-	if msg.From != minterController.Controller {
-		return nil, errors.Wrapf(types.ErrUnauthorized, "you are not a controller of this minter")
-	}
-
 	paused := k.GetPaused(ctx)
 
 	if paused.Paused {

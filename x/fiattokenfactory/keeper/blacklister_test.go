@@ -19,6 +19,9 @@ func createTestBlacklister(keeper *keeper.Keeper, ctx sdk.Context) types.Blackli
 
 func TestBlacklisterGet(t *testing.T) {
 	keeper, ctx := mocks.FiatTokenfactoryKeeper()
+	_, found := keeper.GetBlacklister(ctx)
+	require.False(t, found)
+
 	item := createTestBlacklister(keeper, ctx)
 	rst, found := keeper.GetBlacklister(ctx)
 	require.True(t, found)

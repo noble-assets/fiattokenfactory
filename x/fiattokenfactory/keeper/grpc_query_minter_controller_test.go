@@ -119,4 +119,8 @@ func TestMinterControllerQueryPaginated(t *testing.T) {
 		_, err := keeper.MinterControllerAll(ctx, nil)
 		require.ErrorIs(t, err, status.Error(codes.InvalidArgument, "invalid request"))
 	})
+	t.Run("PaginateError", func(t *testing.T) {
+		_, err := keeper.MinterControllerAll(ctx, request([]byte("next bytes"), 1, 0, true))
+		require.ErrorContains(t, err, "invalid request, either offset or key is expected, got both")
+	})
 }

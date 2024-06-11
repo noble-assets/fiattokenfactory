@@ -13,6 +13,10 @@ import (
 
 func TestPauserQuery(t *testing.T) {
 	keeper, ctx := mocks.FiatTokenfactoryKeeper()
+
+	_, err := keeper.Pauser(ctx, &types.QueryGetPauserRequest{})
+	require.ErrorIs(t, err, status.Error(codes.NotFound, "not found"))
+
 	item := createTestPauser(keeper, ctx)
 	for _, tc := range []struct {
 		desc     string

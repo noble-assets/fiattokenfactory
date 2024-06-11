@@ -19,8 +19,12 @@ func createTestPauser(keeper *keeper.Keeper, ctx sdk.Context) types.Pauser {
 
 func TestPauserGet(t *testing.T) {
 	keeper, ctx := mocks.FiatTokenfactoryKeeper()
-	item := createTestPauser(keeper, ctx)
 	rst, found := keeper.GetPauser(ctx)
+	require.Empty(t, rst)
+	require.False(t, found)
+
+	item := createTestPauser(keeper, ctx)
+	rst, found = keeper.GetPauser(ctx)
 	require.True(t, found)
 	require.Equal(t,
 		utils.Fill(&item),
