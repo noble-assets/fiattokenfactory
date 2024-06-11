@@ -14,10 +14,6 @@ func (k msgServer) RemoveMinter(ctx context.Context, msg *types.MsgRemoveMinter)
 		return nil, errors.Wrapf(types.ErrUnauthorized, "minter controller not found")
 	}
 
-	if msg.From != minterController.Controller {
-		return nil, errors.Wrapf(types.ErrUnauthorized, "you are not a controller of this minter")
-	}
-
 	if msg.Address != minterController.Minter {
 		return nil, errors.Wrapf(
 			types.ErrUnauthorized,
