@@ -22,7 +22,7 @@ func TestMint(t *testing.T) {
 	)
 
 	ftf, ctx := mocks.FiatTokenfactoryKeeper()
-	ftf.SetMintingDenom(ctx, types.MintingDenom{Denom: "uusdc"})
+	ftf.SetMintingDenom(ctx, types.MintingDenom{Denom: mintingDenom})
 	msgServer := keeper.NewMsgServerImpl(ftf)
 
 	_, err := msgServer.Mint(ctx, &types.MsgMint{})

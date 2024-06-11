@@ -21,7 +21,7 @@ func TestConfigureMinter(t *testing.T) {
 	)
 
 	ftf, ctx := mocks.FiatTokenfactoryKeeper()
-	ftf.SetMintingDenom(ctx, types.MintingDenom{Denom: "uusdc"})
+	ftf.SetMintingDenom(ctx, types.MintingDenom{Denom: mintingDenom})
 	ftf.SetPaused(ctx, types.Paused{Paused: true})
 	msgServer := keeper.NewMsgServerImpl(ftf)
 
