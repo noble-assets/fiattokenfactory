@@ -15,7 +15,7 @@ func TestOwnerQuery(t *testing.T) {
 	keeper, ctx := mocks.FiatTokenfactoryKeeper()
 
 	_, err := keeper.Owner(ctx, &types.QueryGetOwnerRequest{})
-	require.Error(t, err, codes.NotFound)
+	require.ErrorIs(t, err, status.Error(codes.NotFound, "not found"))
 
 	owner := types.Owner{Address: "test"}
 	keeper.SetOwner(ctx, owner)

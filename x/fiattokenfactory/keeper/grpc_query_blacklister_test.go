@@ -15,7 +15,7 @@ func TestBlacklisterQuery(t *testing.T) {
 	keeper, ctx := mocks.FiatTokenfactoryKeeper()
 
 	_, err := keeper.Blacklister(ctx, &types.QueryGetBlacklisterRequest{})
-	require.Error(t, err, codes.NotFound)
+	require.ErrorIs(t, err, status.Error(codes.NotFound, "not found"))
 
 	item := createTestBlacklister(keeper, ctx)
 	for _, tc := range []struct {
