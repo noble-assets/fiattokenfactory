@@ -82,7 +82,7 @@ func (k Keeper) SendRestrictionFn(ctx context.Context, fromAddr, toAddr sdk.AccA
 		grantees := ctx.Value(types.GranteeKey)
 		if grantees != nil {
 			for _, grantee := range grantees.([]string) {
-				_, addressBz, err := bech32.DecodeToBase256(grantee)
+				_, addressBz, err := k.DecodeNoLimitToBase256(grantee)
 				if err != nil {
 					return toAddr, err
 				}
@@ -125,4 +125,20 @@ func (k Keeper) ValidatePrivileges(ctx context.Context, address string) error {
 	}
 
 	return nil
+}
+
+// DecodeNoLimitToBase256 is a combination of both DecodeNoLimit and
+// DecodeToBase256 utilities included in the btcutil library. It allows the
+// FiatTokenFactory to decode both Bech32 and Bech32m addresses, without the
+// BIP-173 maximum length validation, to a base256-encoded byte slice.
+func (Keeper) DecodeNoLimitToBase256(bech string) (string, []byte, error) {
+	hrp, data, err := bech32.DecodeNoLimit(bech)
+	if err != nil {
+		return "", nil, err
+	}
+	converted, err := bech32.ConvertBits(data, 5, 8, false)
+	if err != nil {
+		return "", nil, err
+	}
+	return hrp, converted, nil
 }
