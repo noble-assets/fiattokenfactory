@@ -15,6 +15,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 version: v1
+name: buf.build/noble-assets/fiattokenfactory
 deps:
   - buf.build/cosmos/cosmos-proto:1935555c206d4afb9e94615dfd0fad31
   - buf.build/cosmos/cosmos-sdk:v0.50.0
